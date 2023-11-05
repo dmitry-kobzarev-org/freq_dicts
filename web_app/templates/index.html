@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Web App</title>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
+
+
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="/">Home</a>
+        </header>
+        <div class="content">
+            <div id = "info-block-id" class="info-block" data-info-id="{{ data.get('id') }}">
+                {{ data.get('info') }}
+            </div>
+        </div>
+        <div class="buttons">
+            <div id = "left-button" class="button button-left">Left</div>
+            <div id = "right-button" class="button button-right">Right</div>
+        </div>
+    </div>
+</body>
+</html>
