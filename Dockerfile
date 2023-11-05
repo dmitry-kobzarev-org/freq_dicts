@@ -6,14 +6,16 @@ RUN apt-get update && apt-get install -y git
 # Set the working directory to /app
 WORKDIR /app
 
-# Copy the web app files from the "web_app" folder into the container
-COPY web_app/ /app
+RUN python -m venv venv
+RUN /bin/bash -c "source venv/bin/activate"
 
 # Install any dependencies required by your web app
+COPY web_app/requirements.txt /app/requirements.txt
 RUN pip install -r requirements.txt
 
-# Copy the custom library from the repository root into the container
+COPY web_app/ /app
 COPY custom_lib /app/custom_lib
+COPY .dk_google /app/.dk_google
 
 # Expose the port on which your web app listens
 EXPOSE 5000
@@ -21,6 +23,7 @@ EXPOSE 5000
 USER root
 
 ENV FLASK_ENV=production
+ENV ROOT_FULL_PATH=/app
 
 # Define the command to run your web app
 CMD ["flask", "run", "--host=0.0.0.0"]
