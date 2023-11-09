@@ -1,0 +1,29 @@
+/* Custom CSS for login.html */
+/* Center the card */
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Style the card */
+.card {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+}
+
+/* Style the form elements */
+.form-label {
+    font-weight: bold;
+}
+
+.form-control {
+    margin-bottom: 15px;
+}
+
+/* Style the login button */
+.btn-primary {
+    width: 100%;
+}

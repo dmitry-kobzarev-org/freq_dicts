@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 import time
 import hashlib
 import random
@@ -7,60 +7,79 @@ import string
 import json
 from dk_google.local import create_local_file
 from dk_google import *
+from functools import wraps
 
 init_client = Client()
 init_client.init_script()
 
+import sys
+sys.path.append(os.getenv('ROOT_FULL_PATH'))
+
 load_dotenv()  # Load environment variables from .env file
+
+from custom_lib import FirestoreClient
+from custom_lib.helpers import generate_signed_url
 
 app = Flask(__name__)
 
-def generate_unique_id(unique_word):
-    # Get the current timestamp (in seconds)
-    timestamp = str(int(time.time()))
+def get_data(size, user = 'dima'):
+    client = FirestoreClient('freq-dicts')
+    cur_list = client.get_document('users/dima').get('current_list')
+    data_part = copy.deepcopy(cur_list[:size])
+    cur_list_updated = copy.deepcopy(cur_list[size:] + cur_list[:size])
+    client.update_document('users/dima', 
+                           data = {'current_list': cur_list_updated})
+    for i in data_part:
+        i['signed_url'] = generate_signed_url('dk-lang-reword', i.get('gcs_rel_path'))
+    return data_part
 
-    # Generate a random component (4 characters)
-    random_component = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(4))
+def requires_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if 'user' not in session or session['user'] != authorized_user['username']:
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated
 
-    # Combine the timestamp, unique word, and random component
-    input_string = timestamp + unique_word + random_component
-
-    # Hash the input string using SHA-256
-    unique_id = hashlib.sha256(input_string.encode()).hexdigest()
-
-    # Truncate to 12 characters
-    unique_id = unique_id[:12]
-    return unique_id
-
-info_list = [{
-    'counter': i,
-    'id': generate_unique_id(f'hello_{i}'),
-    'info': f'hello_{i}',
-    'press': None
-} for i in range(100)]
-counter = 0
+app.secret_key = 'hello_dima'  # Replace with a strong secret key
+authorized_user = {
+    'username': 'dima',
+    'password': 'hello'
+}
 
 @app.route('/')
-def index():
-    return render_template('index.html', data = info_list[counter])
+@requires_auth
+def app_page():
+    return render_template('app.html')
 
 @app.route('/api/get_data/')
-def get_data():
-    data = info_list[counter]
-    return data
+@requires_auth
+def get_data_api():
+    user = session.get('user')
+    size = int(request.args.get('size'))
+    data = get_data(size)
+    return jsonify(data)
 
-@app.route('/api/process_log/', methods = ['POST'])
-def send_log():
-    global counter
-    data = request.json
-    print(data)
-    info_list[
-        [i.get('counter') for i in info_list if i.get('id') == data.get('info_id')][0]
-    ]['press'] = data.get('button')
-    create_local_file('tmp/info_list.json', json.dumps(info_list))
-    counter += 1
+@app.route('/api/process_logs/', methods = ['POST'])
+def send_log_api():
+    pass
 
     return jsonify({'message': 'log was processed'})
 
-if __name__ == '__main__':
-    app.run(debug = True)
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        if username == authorized_user['username'] and password == authorized_user['password']:
+            session['user'] = username
+            return redirect(url_for('app_page'))
+        else:
+            return 'Invalid credentials. Please try again.'
+
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.pop('user', None)
+    return redirect(url_for('login'))
