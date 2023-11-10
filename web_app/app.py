@@ -9,13 +9,15 @@ from dk_google.local import create_local_file
 from dk_google import *
 from functools import wraps
 
+load_dotenv()
+
 init_client = Client()
 init_client.init_script()
 
 import sys
 sys.path.append(os.getenv('ROOT_FULL_PATH'))
 
-load_dotenv()  # Load environment variables from .env file
+  # Load environment variables from .env file
 
 from custom_lib import FirestoreClient
 from custom_lib.helpers import generate_signed_url
