@@ -7,22 +7,22 @@
     <script src="{{ url_for('static', filename = 'main.js') }}"></script>
   </head>
  <body>
-    <div class="container">
+    <div class="loading-overlay">
+       <div class="loading-animation"></div>
+    </div>
+    <div id = 'container_id' class="container">
         <header>
             <a href="/">Home</a>
             <a href="/logout">Log out</a>
         </header>
-        <div class="content">
-            <div id = "info_block_id" class="info-block" data-info-id="hello">
-                <audio id  = 'info_block_audio_id' controls type = 'audio/mpeg' style = 'display: none' ></audio>
-                <button id = 'info_block_repeat_id' class = 'button'>repeat audio</button>
-                <div id = 'info_block_show_id'>show word</div>
-            </div>
-        </div>
+        <audio id  = 'audio_id' controls type = 'audio/mpeg' style = 'display: none' ></audio>
+        <button id = 'repeat_id' class = 'button'>start</button>
+        <div id = 'text_id'>show</div>
         <div class="buttons">
             <button id = "left_button_id"  class="button button-left">Left</button>
             <button id = "right_button_id"  class="button button-right">Right</button>
         </div>
     </div>
+  </div>
 </body>
 </html>
