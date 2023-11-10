@@ -21,7 +21,8 @@ class FirestoreClient:
         self.project_id = os.getenv('PROJECT_ID')
         self.cred_type = os.getenv('CRED_TYPE')
         self.creds = get_credentials(self.cred_type)
-        self.client = firestore.Client(project = self.project_id, database = database)
+        self.client = firestore.Client(project = self.project_id, database = database,
+                                      credentials = self.creds)
         self.database = database
         self.info_prefix = f'{self.project_id}, {self.database}: '
         self.LIMIT_CATALOG_DISPLAY_COLLECTION_ITEMS = 30

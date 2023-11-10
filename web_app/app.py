@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
+from flask_cors import CORS, cross_origin
 import time
 import hashlib
 import random
@@ -51,11 +52,13 @@ authorized_user = {
 
 @app.route('/')
 @requires_auth
+@cross_origin()
 def app_page():
     return render_template('app.html')
 
 @app.route('/api/get_data/')
 @requires_auth
+@cross_origin()
 def get_data_api():
     user = session.get('user')
     size = int(request.args.get('size'))

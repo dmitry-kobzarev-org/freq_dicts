@@ -25,8 +25,8 @@ class DataHandler {
         this.audio = document.getElementById('audio_id');
         this.repeat = document.getElementById('repeat_id');
         this.text = document.getElementById('text_id');
-        this.data_batch_size = 20;
-        this.data_rest_minimum = 10;
+        this.data_batch_size = 40;
+        this.data_rest_minimum = 20;
         this.updating_is_running = false;
         this.items_are_modifying = false;
         this.start_is_clicked = false;
